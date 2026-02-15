@@ -26,9 +26,9 @@ SELECT DISTINCT
 
     -- Parsing multi-format des dates de naissance
     CASE 
-        WHEN date_naissance_raw ~ '^\d{2}/\d{2}/\d{4}$' THEN to_date(date_naissance_raw, 'DD/MM/YYYY')
-        WHEN date_naissance_raw ~ '^\d{4}-\d{2}-\d{2}$' THEN date_naissance_raw::date
-        WHEN date_naissance_raw ~ '^\d{2}-\d{2}-\d{4}$' THEN to_date(date_naissance_raw, 'DD-MM-YYYY')
+        WHEN date_naissance_raw ~ '^\d{2}/\d{2}/\d{4}$' THEN to_date(date_naissance_raw, 'DD/MM/YYYY') -- - 'DD/MM/YYYY' : classique français (ex: 15/05/1980)
+        WHEN date_naissance_raw ~ '^\d{4}-\d{2}-\d{2}$' THEN date_naissance_raw::date -- - 'YYYY-MM-DD' : format ISO (ex: 1980-05-15)
+        WHEN date_naissance_raw ~ '^\d{2}-\d{2}-\d{4}$' THEN to_date(date_naissance_raw, 'DD-MM-YYYY')  -- - 'DD-MM-YYYY' : autre variante avec tirets (ex: 15-05-1980)
         ELSE NULL -- Si format inconnu
     END AS date_naissance,
 
@@ -40,6 +40,13 @@ SELECT DISTINCT
     END AS sexe,
 
     -- Code postal uniquement chiffres
+    /*trim(code_postal_raw) → enlève les espaces au début et à la fin.
+    [^0-9] → c’est le pattern regex qui dit « tout caractère qui n’est pas un chiffre ».
+    '' → on remplace ces caractères non numériques par rien (on les supprime).
+    'g' → c’est le modificateur global :
+        Sans 'g' → PostgreSQL ne remplace que la première occurrence d’un caractère non numérique.
+        Avec 'g' → PostgreSQL remplace tous les caractères non numériques dans la chaîne.*/
+
     regexp_replace(trim(code_postal_raw), '[^0-9]', '', 'g') AS code_postal,
 
     -- Ville en capitalisation correcte, vide transformé en NULL
@@ -49,7 +56,26 @@ SELECT DISTINCT
     NULLIF(lower(trim(email_raw)), '') AS email,
 
     -- Téléphone : suppression caractères non numériques
-    regexp_replace(regexp_replace(trim(telephone_raw), '[^\d]', '', 'g'), '^0', '0', 'g') AS telephone,
+        /*trim(telephone_raw)
+                Supprime les espaces au début et à la fin du champ.
+                Exemple : ' 06 12 34 56 78 ' → '06 12 34 56 78'.
+        
+        regexp_replace(..., '[^\d]', '', 'g')
+            Expression régulière : [^\\d] = tout caractère qui n’est pas un chiffre.
+            '' = on remplace par rien (on supprime ces caractères).
+            'g' = global, on supprime tous les caractères non numériques dans le texte.
+            Exemple : '06 12 34 56 78' → '0612345678', 'FIXE:0491234567' → '0491234567'.
+
+        regexp_replace(..., '^0', '0', 'g')
+            Expression ^0 = cherche un zéro au début de la chaîne.
+            On le remplace par… 0 (même valeur).
+            Pourquoi ?
+                    Cela peut sembler inutile, mais c’est un truc de standardisation : certains numéros transformés par les traitements précédents pourraient perdre le zéro initial si le format initial était bizarre (par exemple, '+33 6 12 34 56 78' → après suppression des non-chiffres → 33612345678).
+                    Ici, cette deuxième regexp_replace permet d’uniformiser tous les numéros qui doivent commencer par 0, pour les usages français classiques.
+            'g' = global, mais ici ce n’est pas strictement nécessaire, car il n’y a qu’un début de chaîne. Ça ne fait pas de mal de l’avoir.
+        */
+        
+    regexp_replace(regexp_replace(trim(telephone_raw), '[^\d]', '', 'g'), '^0', '0', 'g') AS telephone,  
 
     -- Colonne technique pour traçabilité
     CURRENT_TIMESTAMP AS date_chargement,
