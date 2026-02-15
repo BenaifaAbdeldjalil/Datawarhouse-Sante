@@ -1,7 +1,21 @@
--- 1. Création des schémas
-CREATE SCHEMA IF NOT EXISTS bronze;
-CREATE SCHEMA IF NOT EXISTS silver;
-CREATE SCHEMA IF NOT EXISTS gold;
+/*
+=========================================================
+01_init_schemas.sql
+Initialisation des schémas du Data Warehouse
+Architecture : Bronze / Silver / Gold
+=========================================================
+*/
 
--- Optionnel : schéma commun de référentiels
-CREATE SCHEMA IF NOT EXISTS ref;
+-- Suppression si existant (DEV uniquement)
+DROP SCHEMA IF EXISTS bronze CASCADE;
+DROP SCHEMA IF EXISTS silver CASCADE;
+DROP SCHEMA IF EXISTS gold CASCADE;
+
+-- Création des couches
+CREATE SCHEMA bronze;
+CREATE SCHEMA silver;
+CREATE SCHEMA gold;
+
+COMMENT ON SCHEMA bronze IS 'Zone de données brutes historisées';
+COMMENT ON SCHEMA silver IS 'Zone de données nettoyées et standardisées';
+COMMENT ON SCHEMA gold IS 'Zone de datamarts métiers (Data Products)';
