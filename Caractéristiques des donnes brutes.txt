@@ -1,0 +1,28 @@
+Noms/Prénoms français réalistes (150+ variations) :
+DUPONT, Martin, LECLERC, dupond t., ROGER, FOURNIER, CÔTÉ, PERRIN
+Prénoms composés : Jean-Pierre, Anne-Marie, Marie-Claire, Sophie-Laure
+
+150+ formats de dates de naissance :
+15/05/1980, 1982-03-22, 01-12-75, 15/mai/1990, 75-06-20, ????, 1980/12/25
+12-nov-1982, 1981//06//22, 15-juin-1978, 01-janvier-1985, 32/13/2026
+
+Codes postaux sales (100+ variations) :
+75001, 69005  , 31000T, 75012 paris, 33000 , 35000B, 67000PARIS, 93500 
+
+Emails réalistes + cassés :
+jean.dupont@mail.fr, marie.martin @test.com, sophie.roger@gmailcom
+pierre.durand@test .fr, emilie.cote@wanadoofr, camillefabre@mailfr
+
+Téléphones 50+ formats :
+06 12 34 56 78, 0690567890, FIXE:0491234567, 02.40.12.34.56, 05-56-78-90-12
+
+Dates : "15-06-22", "15 mars 2024", "2023//10//15", "????", "32/13/2026"
+Types : "INDIVIDUEL", "individuel", "FML", "COLL", "F A M I L L E"
+Régimes : "RÉGIME GÉNÉRAL", "fonction publique", "rg", "Régime§§§"
+
+Montants : "456,78", "2345.99 €", "-125.00", "1 000 000€", "-∞€", "999.999.999,99€"
+Dates : "15/06/2022", "15/03/2024", "????", "32/13/2026", "99/99/9999"
+Codes : "sante_base", "PREV", "XXXX", "§§§§", "NULL":
+
+Statuts variés 
+A, ACTIF, actif, ActIf, RES, RESILIE, ReSiliE, Suspendu, En cours, RÉSILIÉ
