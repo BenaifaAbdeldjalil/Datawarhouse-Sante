@@ -94,3 +94,95 @@ LEFT JOIN silver.dim_adherent da
     ON da.id_adherent_src = a.id_adherent_src
 LEFT JOIN silver.dim_contrat dc
     ON dc.id_contrat_src = a.id_contrat_src;
+
+-- Dimension sinistre
+CREATE TABLE IF NOT EXISTS silver.dim_sinistre (
+    sk_sinistre          bigserial primary key,
+    id_sinistre_src      text not null,
+    id_adherent_src      text,
+    id_contrat_src       text,
+    date_survenance      date,
+    date_declaration     date,
+    type_sinistre        text,
+    code_garantie        text,
+    statut_dossier       text,
+    reserve_brute        numeric(14,2),
+    reserve_nette        numeric(14,2),
+    dt_integration       timestamp default now()
+);
+
+-- Fait règlement (granularité : un règlement)
+CREATE TABLE IF NOT EXISTS silver.fait_reglement (
+    sk_reglement         bigserial primary key,
+    id_reglement_src     text not null,
+    id_sinistre_src      text not null,
+    sk_sinistre          bigint,
+    date_reglement       date,
+    montant_reglement    numeric(14,2),
+    type_reglement       text,
+    mode_paiement        text,
+    dt_integration       timestamp default now()
+);
+
+INSERT INTO silver.dim_sinistre (
+    id_sinistre_src, id_adherent_src, id_contrat_src,
+    date_survenance, date_declaration,
+    type_sinistre, code_garantie, statut_dossier,
+    reserve_brute, reserve_nette
+)
+SELECT DISTINCT
+    s.id_sinistre_src,
+    s.id_adherent_src,
+    s.id_contrat_src,
+    CASE
+        WHEN s.date_survenance_raw ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'
+             THEN s.date_survenance_raw::date
+        ELSE NULL
+    END as date_survenance,
+    CASE
+        WHEN s.date_declaration_raw ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'
+             THEN s.date_declaration_raw::date
+        ELSE NULL
+    END as date_declaration,
+    upper(trim(s.type_sinistre_raw)) as type_sinistre,
+    upper(trim(s.code_garantie_raw)) as code_garantie,
+    upper(trim(s.statut_dossier_raw)) as statut_dossier,
+    CASE
+        WHEN s.reserve_brute_raw ~ '^[0-9]+([.,][0-9]+)?$'
+             THEN replace(s.reserve_brute_raw, ',', '.')::numeric(14,2)
+        ELSE 0
+    END as reserve_brute,
+    CASE
+        WHEN s.reserve_nette_raw ~ '^[0-9]+([.,][0-9]+)?$'
+             THEN replace(s.reserve_nette_raw, ',', '.')::numeric(14,2)
+        ELSE 0
+    END as reserve_nette
+FROM bronze.sinistre_raw s
+WHERE s.id_sinistre_src IS NOT NULL;
+
+INSERT INTO silver.fait_reglement (
+    id_reglement_src, id_sinistre_src, sk_sinistre,
+    date_reglement, montant_reglement,
+    type_reglement, mode_paiement
+)
+SELECT
+    r.id_reglement_src,
+    r.id_sinistre_src,
+    ds.sk_sinistre,
+    CASE
+        WHEN r.date_reglement_raw ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'
+             THEN r.date_reglement_raw::date
+        ELSE NULL
+    END as date_reglement,
+    CASE
+        WHEN r.montant_reglement_raw ~ '^[0-9]+([.,][0-9]+)?$'
+             THEN replace(r.montant_reglement_raw, ',', '.')::numeric(14,2)
+        ELSE 0
+    END as montant_reglement,
+    upper(trim(r.type_reglement_raw)) as type_reglement,
+    upper(trim(r.mode_paiement_raw)) as mode_paiement
+FROM bronze.reglement_raw r
+LEFT JOIN silver.dim_sinistre ds
+    ON ds.id_sinistre_src = r.id_sinistre_src
+WHERE r.id_reglement_src IS NOT NULL;
+
