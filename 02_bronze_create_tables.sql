@@ -41,3 +41,31 @@ CREATE TABLE IF NOT EXISTS bronze.contrat_raw (
     regime_raw         text,
     canal_vente_raw    text
 );
+
+
+
+CREATE TABLE IF NOT EXISTS bronze.sinistre_raw (
+    source_file           text,
+    load_ts               timestamp default now(),
+    id_sinistre_src       text,
+    id_adherent_src       text,
+    id_contrat_src        text,
+    date_survenance_raw   text,
+    date_declaration_raw  text,
+    type_sinistre_raw     text,
+    code_garantie_raw     text,
+    statut_dossier_raw    text,
+    reserve_brute_raw     text,
+    reserve_nette_raw     text
+);
+
+CREATE TABLE IF NOT EXISTS bronze.reglement_raw (
+    source_file         text,
+    load_ts             timestamp default now(),
+    id_reglement_src    text,
+    id_sinistre_src     text,
+    date_reglement_raw  text,
+    montant_reglement_raw text,
+    type_reglement_raw  text,
+    mode_paiement_raw   text
+);
