@@ -29,3 +29,34 @@ Chaque domaine :
   a ses tables Silver
   expose son propre datamart Gold
   possède ses règles de gestion
+
+
+📋 3. Plan de travail projet
+Phase 1 – Modélisation
+Identifier entités métier
+Définir grain des faits
+Définir dimensions
+
+Phase 2 – Bronze
+Création schémas
+Import CSV brut
+Ajout colonnes techniques (date ingestion)
+
+Phase 3 – Silver
+Nettoyage
+Standardisation
+Typage
+Déduplication
+Règles métier
+
+Phase 4 – Gold
+Modèle en étoile
+Tables de faits
+Dimensions
+Indicateurs
+
+Phase 5 – Documentation GitHub
+README Architecture
+Dictionnaire de données
+Règles de gestion
+Scripts SQL commentés
